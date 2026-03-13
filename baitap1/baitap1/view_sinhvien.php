@@ -1,15 +1,11 @@
 <?php
 require_once 'SinhVien.php';
 
-// =============================================
-// BƯỚC 1: Tạo mảng sinh viên mẫu ban đầu
-// =============================================
-// Dùng session để lưu danh sách sinh viên
-// (vì nếu không dùng session thì khi F5 lại, dữ liệu sẽ mất)
+
 session_start();
 
 if (!isset($_SESSION['dsSinhVien'])) {
-    // Lần đầu vào trang → tạo dữ liệu mẫu
+    
     $_SESSION['dsSinhVien'] = [
         ["SV001", "Nguyễn Văn An",    20, "an.nguyen@example.com",   "CNTT K65",     8.5, "Đang học"],
         ["SV002", "Trần Thị Bình",    19, "binh.tran@example.com",   "Kinh tế K66",  7.2, "Đang học"],
@@ -19,14 +15,11 @@ if (!isset($_SESSION['dsSinhVien'])) {
     ];
 }
 
-// =============================================
-// BƯỚC 2: Xử lý khi người dùng bấm nút "Thêm"
-// =============================================
-$thongBao = "";  // Biến để hiện thông báo lỗi hoặc thành công
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
-    // Lấy dữ liệu từ form, trim() để xóa khoảng trắng thừa
+  
     $maSV      = trim($_POST['maSV']);
     $name      = trim($_POST['name']);
     $age       = trim($_POST['age']);
@@ -35,7 +28,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $diemTB    = trim($_POST['diemTB']);
     $trangThai = $_POST['trangThai'];
 
-    // --- Kiểm tra dữ liệu đơn giản ---
+    
     if ($maSV == "" || $name == "" || $age == "" || $email == "" || $lop == "" || $diemTB == "") {
         $thongBao = "error:Vui lòng điền đầy đủ thông tin!";
 
@@ -46,7 +39,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $thongBao = "error:Điểm TB phải là số từ 0 đến 10!";
 
     } else {
-        // Kiểm tra mã SV có bị trùng không
+        
         $trung = false;
         foreach ($_SESSION['dsSinhVien'] as $sv) {
             if ($sv[0] == $maSV) {
@@ -58,16 +51,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($trung) {
             $thongBao = "error:Mã sinh viên '$maSV' đã tồn tại!";
         } else {
-            // Tất cả hợp lệ → thêm vào mảng session
+            
             $_SESSION['dsSinhVien'][] = [$maSV, $name, (int)$age, $email, $lop, (float)$diemTB, $trangThai];
             $thongBao = "success:Thêm sinh viên '$name' thành công!";
         }
     }
 }
 
-// =============================================
-// BƯỚC 3: Tạo mảng object SinhVien để hiển thị
-// =============================================
+
 $dsSinhVien = [];
 foreach ($_SESSION['dsSinhVien'] as $sv) {
     $dsSinhVien[] = new SinhVien($sv[0], $sv[1], $sv[2], $sv[3], $sv[4], $sv[5], $sv[6]);
@@ -79,7 +70,7 @@ foreach ($_SESSION['dsSinhVien'] as $sv) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Sinh Viên</title>
-    <!-- Bootstrap 5 để có giao diện đẹp nhanh -->
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body { background-color: #f5f5f5; }
@@ -93,34 +84,32 @@ foreach ($_SESSION['dsSinhVien'] as $sv) {
 
     <h2 class="text-center mb-4">Quản lý Sinh Viên</h2>
 
-    <!-- ==========================================
-         PHẦN 1: FORM THÊM SINH VIÊN MỚI
-    ========================================== -->
+  
     <div class="card mb-4">
         <div class="card-header bg-primary text-white">
             <h5 class="mb-0">Thêm Sinh Viên Mới</h5>
         </div>
         <div class="card-body">
 
-            <!-- Hiển thị thông báo nếu có -->
+            
             <?php if ($thongBao != ""): ?>
                 <?php
-                    // Tách loại thông báo và nội dung
+                    
                     $parts = explode(":", $thongBao, 2);
-                    $loai  = $parts[0];  // "error" hoặc "success"
-                    $noi   = $parts[1];  // nội dung thông báo
+                    $loai  = $parts[0];  
+                    $noi   = $parts[1];  
                 ?>
                 <div class="alert alert-<?= $loai == 'error' ? 'danger' : 'success' ?>">
                     <?= $noi ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Form thêm sinh viên -->
-            <!-- method="POST" nghĩa là dữ liệu gửi lên server qua POST -->
+            
+            
             <form method="POST">
                 <div class="row g-3">
 
-                    <!-- Mã SV -->
+                    
                     <div class="col-md-4">
                         <label class="form-label">Mã SV <span class="text-danger">*</span></label>
                         <input type="text"
@@ -128,7 +117,7 @@ foreach ($_SESSION['dsSinhVien'] as $sv) {
                                class="form-control"
                                placeholder="VD: SV006"
                                value="<?= isset($_POST['maSV']) && str_starts_with($thongBao,'error') ? htmlspecialchars($_POST['maSV']) : '' ?>">
-                        <!-- value="..." giúp giữ lại dữ liệu người dùng đã nhập khi có lỗi -->
+                        
                     </div>
 
                     <!-- Họ và Tên -->
@@ -200,18 +189,16 @@ foreach ($_SESSION['dsSinhVien'] as $sv) {
                 <div class="mt-3">
                     <button type="submit" class="btn btn-primary">➕ Thêm Sinh Viên</button>
                     <a href="view_sinhvien.php" class="btn btn-secondary ms-2">🔄 Reset</a>
-                    <!-- Reset = trỏ về trang này để xóa form -->
+                    
                 </div>
             </form>
 
         </div>
     </div>
-    <!-- KẾT THÚC FORM -->
+    
 
 
-    <!-- ==========================================
-         PHẦN 2: BẢNG DANH SÁCH SINH VIÊN
-    ========================================== -->
+<!-- bang sinh vien -->
     <div class="card">
         <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
             <h5 class="mb-0">Danh sách Sinh Viên</h5>
@@ -266,7 +253,7 @@ foreach ($_SESSION['dsSinhVien'] as $sv) {
 
         </div>
     </div>
-    <!-- KẾT THÚC BẢNG -->
+ 
 
 </div>
 </body>
